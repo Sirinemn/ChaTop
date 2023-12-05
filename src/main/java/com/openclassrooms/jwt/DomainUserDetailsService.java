@@ -36,33 +36,4 @@ public class DomainUserDetailsService implements UserDetailsService {
 	}
 }
 
-/*
- * private static final Logger log =
- * LoggerFactory.getLogger(DomainUserDetailsService.class);
- * 
- * @Override
- * 
- * @Transactional public UserDetails loadUserByUsername(final String login) {
- * log.debug("Authenticating {}", login); String lowercaseLogin =
- * login.toLowerCase(Locale.ENGLISH); Optional<User> userByEmailFromDatabase =
- * userRepository.findByName(lowercaseLogin); return
- * userByEmailFromDatabase.map(user -> { try { return
- * createSpringSecurityUser(lowercaseLogin, user); } catch (Exception e) {
- * return null; } }).orElseGet(() -> { Optional<User> userByLoginFromDatabase =
- * userRepository.findByName(lowercaseLogin); return
- * userByLoginFromDatabase.map(user -> { try { return
- * createSpringSecurityUser(lowercaseLogin, user); } catch (Exception e) {
- * return null; } }).orElseThrow(() -> new UsernameNotFoundException( "User " +
- * lowercaseLogin + " was not found in the " + "database")); }); }
- * 
- * private org.springframework.security.core.userdetails.User
- * createSpringSecurityUser(String lowercaseLogin, User user) {
- * 
- * final List<GrantedAuthority> grantedAuthorities = new ArrayList<>();
- * grantedAuthorities.add(new SimpleGrantedAuthority("ok"));
- * 
- * return new org.springframework.security.core.userdetails.User(user.getName(),
- * user.getPassword(), grantedAuthorities); }
- * 
- * }
- */
+

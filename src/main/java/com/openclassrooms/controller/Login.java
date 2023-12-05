@@ -7,18 +7,18 @@ public class Login {
 
     @NotNull
     @Size(min = 1, max = 50)
-    private String username;
+    private String name;
 
     @NotNull
     @Size(min = 1, max = 50)
     private String password;
 
-    public String getUsername() {
-        return username;
+    public String getName() {
+        return name;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
+    public void setName(String username) {
+        this.name = username;
     }
 
     public String getPassword() {

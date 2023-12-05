@@ -21,8 +21,8 @@ public class User {
 	private LocalDateTime updated_at ;
 	
 	@ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-	@JoinTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"),
-	inverseJoinColumns = @JoinColumn(name = "role_id", referencedColumnName = "id"))
+	@JoinTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id", table="users"),
+	inverseJoinColumns = @JoinColumn(name = "role_id", referencedColumnName = "id", table="role"))
 	private List<Role> roles = new ArrayList<>();
 
 
