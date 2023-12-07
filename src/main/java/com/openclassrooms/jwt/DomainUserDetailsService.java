@@ -24,8 +24,8 @@ public class DomainUserDetailsService implements UserDetailsService {
 	}
 
 	@Override
-	public UserDetails loadUserByUsername(String name) throws UsernameNotFoundException {
-		com.openclassrooms.model.User user = userRepository.findByName(name)
+	public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+		com.openclassrooms.model.User user = userRepository.findByEmail(email)
 				.orElseThrow(() -> new UsernameNotFoundException("not found"));
 		return new org.springframework.security.core.userdetails.User(user.getName(), user.getPassword(),
 				mapRolesToAuthorities(user.getRoles()));

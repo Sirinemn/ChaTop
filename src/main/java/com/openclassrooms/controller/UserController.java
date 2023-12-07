@@ -11,6 +11,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -51,6 +52,11 @@ public class UserController {
 		this.roleRepository = roleRepository;
 
 	}
+	
+	@GetMapping("/test")
+	public ResponseEntity<String> welcome() {
+		return ResponseEntity.ok().build();
+	}
 
 	@PostMapping("/authenticate")
 	public ResponseEntity<JWTToken> authorize(@Valid @RequestBody Login login) {
@@ -84,21 +90,6 @@ public class UserController {
 		}
 	}
 
-	@PostMapping("register")
-	public ResponseEntity<String> register(@RequestBody RegisterDTO registerDto) {
-		if (userRepository.existsByName(registerDto.getName())) {
-			return new ResponseEntity<>("username is taken!", HttpStatus.BAD_REQUEST);
-		}
-		User user = new User();
-		user.setName(registerDto.getName());
-		user.setEmail(registerDto.getEmail());
-		user.setPassword(passwordEncoder.encode(registerDto.getPassword()));
 
-		Role role = roleRepository.findByName("USER").get();
-		user.setRoles(Collections.singletonList(role));
-		userRepository.save(user);
-		return new ResponseEntity<>("user registered succcess", HttpStatus.OK);
-
-	}
 
 }

@@ -25,7 +25,7 @@ public class TokenProvider {
 
 	private static final Logger log = LoggerFactory.getLogger(TokenProvider.class);
 
-	private static final String AUTHORITIES_KEY = "auth";
+	private static final String AUTHORITIES_KEY = "Role";
 
 	@SuppressWarnings("deprecation")
 	public String createToken(Authentication authentication) {
@@ -35,7 +35,10 @@ public class TokenProvider {
 		long now = (new Date()).getTime();
 		Date validity = new Date(now + SecurityConstants.JWT_EXPIRATION);
 
-		return Jwts.builder().subject(authentication.getName()).claim("Role", authorities).signWith(getSigningKey())
+		return Jwts.builder()
+				.subject(authentication.getName())
+				.claim("Role", authorities)
+				.signWith(getSigningKey())
 				.setExpiration(validity).compact();
 
 	}

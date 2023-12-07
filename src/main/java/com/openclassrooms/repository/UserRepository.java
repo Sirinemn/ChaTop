@@ -10,7 +10,7 @@ import com.openclassrooms.model.User;
 
 @Repository
 public interface UserRepository extends JpaRepository<User,Integer> {
-	Optional <User> findByName(String name);
-	Boolean existsByName(String name);
+	Optional <User> findByEmail(String email);
+	Boolean existsByName(String email);
 
 }
