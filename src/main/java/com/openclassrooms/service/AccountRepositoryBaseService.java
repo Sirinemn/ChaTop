@@ -36,7 +36,7 @@ public class AccountRepositoryBaseService implements AccountService {
 		user.setEmail(registerDto.getEmail());
 		user.setPassword(passwordEncoder.encode(registerDto.getPassword()));
 
-		roleRepository.findByName("USER")
+		roleRepository.findByName("CUSTOMER")
 		.ifPresent(r -> user.setRoles(Collections.singletonList(r)));
 		userRepository.save(user);
 		

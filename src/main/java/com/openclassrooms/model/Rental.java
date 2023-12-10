@@ -1,21 +1,26 @@
 package com.openclassrooms.model;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import lombok.Builder;
 import lombok.Data;
 
 @Entity
-@Builder
 @Data
 @Table(name="rentals")
 public class Rental {
+	
+	public Rental() {}
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Integer id;
@@ -24,12 +29,17 @@ public class Rental {
 	private float price;
 	private String picture;
 	private String description;
-	private Integer owner_id;
-	private LocalDateTime created_at ;
-	private LocalDateTime updated_at ;
+	@Column(name="created_at")
+	private LocalDateTime createdAt ;
+	@Column(name="updated_at")
+	private LocalDateTime updatedAt ;
 	
-	//@ManyToOne
-	//private User owner;
-
+	@ManyToOne
+	@JoinColumn(name= "owner_id")
+    private User owner;
+	
+	@OneToMany(targetEntity=Message.class, cascade = CascadeType.ALL)
+	@JoinColumn(name= "rental_id", referencedColumnName="id")
+	private List<Message> Message;
 
 }

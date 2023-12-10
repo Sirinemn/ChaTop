@@ -18,6 +18,8 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import com.openclassrooms.jwt.JWTConfigurer;
+
+import static org.springframework.security.config.Customizer.withDefaults;
 import com.openclassrooms.jwt.JwtAuthEntryPoint;
 import com.openclassrooms.jwt.TokenProvider;
 
@@ -31,9 +33,10 @@ public class SecurityConfig {
     private final TokenProvider tokenProvider;
 
 
-    public SecurityConfig(UserDetailsService userDetailsService,TokenProvider tokenProvider) {
+    public SecurityConfig(UserDetailsService userDetailsService,TokenProvider tokenProvider,JwtAuthEntryPoint authEntryPoint) {
         this.userDetailsService = userDetailsService;
         this.tokenProvider = tokenProvider;
+        this.authEntryPoint = authEntryPoint;
     }
 
     @Bean
@@ -60,13 +63,11 @@ public class SecurityConfig {
     @SuppressWarnings("removal")
 	@Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http.addFilterBefore(new CorsFilter(), UsernamePasswordAuthenticationFilter.class).cors().and().csrf((AbstractHttpConfigurer::disable));
-                http.exceptionHandling().authenticationEntryPoint(authEntryPoint);
-                http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
-                http.authorizeHttpRequests().requestMatchers("/api/authenticate/**").permitAll()
-                .anyRequest().permitAll().and().apply(securityConfigurerAdapter());
-            
-
+        http.addFilterBefore(new CorsFilter(), UsernamePasswordAuthenticationFilter.class).cors(withDefaults()).csrf((AbstractHttpConfigurer::disable));
+        http.exceptionHandling(handling -> handling.authenticationEntryPoint(authEntryPoint));
+        http.sessionManagement(management -> management.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+                http.authorizeHttpRequests().requestMatchers("/api/authenticate","/api/register","/swagger*/**").permitAll()
+                .anyRequest().authenticated().and().apply(securityConfigurerAdapter());
 
         return http.build();
     }

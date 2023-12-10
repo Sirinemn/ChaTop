@@ -20,7 +20,7 @@ public class AccountController {
 	public AccountController(AccountService accountService) {
 		this.accountService = accountService;
 	}
-
+	
 	@PostMapping("/register")
 	public ResponseEntity<String> register(@RequestBody RegisterDTO registerDto) throws UserAlreadyExistException {
 		accountService.save(registerDto);	

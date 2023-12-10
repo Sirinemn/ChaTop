@@ -1,16 +1,20 @@
 package com.openclassrooms.controller;
 
-import java.util.Optional;
+import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.openclassrooms.dto.RentalDto;
 import com.openclassrooms.model.Rental;
 import com.openclassrooms.service.RentalService;
 
@@ -18,30 +22,41 @@ import io.swagger.annotations.Api;
 
 @Api(value= "Gestion des locations")
 @RestController
+@RequestMapping("/api")
+
 public class RentalController {
 	
-	@Autowired
 	private RentalService rentalService;
+	public RentalController(RentalService rentalService) {
+		this.rentalService=rentalService;
+	}
 	
 	@GetMapping("/rentals")
-	public Iterable<Rental> getRentals(){
-		return rentalService.getRentals();
+	public ResponseEntity<List<RentalDto>> getRentals(){
+		List<RentalDto> rentals= rentalService.getRentals();
+		return ResponseEntity.ok(rentals);
 	}
 	@GetMapping("/rental/{id}")
-	public Optional<Rental> getRental(@RequestParam int id){
+	public Rental  getRental(@PathVariable int id){
 		return rentalService.getRental(id);
 	}
+	//@PreAuthorize("hasRole('ADMIN')")
 	@PostMapping("/add")
-	public Rental saveRental(@RequestBody Rental rental) {
-		return rentalService.saveRental(rental);
+	public ResponseEntity<String> addRental(@RequestBody RentalDto rentalDto) {
+		 rentalService.saveRental(rentalDto);
+		 return new ResponseEntity<>("Added succeesfully", HttpStatus.CREATED);
 	}
+	@PreAuthorize("hasRole('ADMIN')")
 	@DeleteMapping("/rental/{id}")
-	public void deleteRental(@RequestParam int id){
+	public ResponseEntity<Void> deleteRental(@PathVariable int id){
 		rentalService.deleteRental(id);
+		return ResponseEntity.noContent().build();
 	}
+	@PreAuthorize("hasRole('ADMIN')")
 	@PutMapping("/update/{id}")
-	public Rental updateRental(@RequestParam Rental rental, @RequestParam int id) {
-		return rentalService.updateRental(rental,id);
+	public ResponseEntity<Rental> updateRental(@PathVariable Rental rental, @PathVariable int id) {
+		Rental result = rentalService.updateRental(rental,id);
+		return ResponseEntity.ok().body(result);
 	}
 
 }

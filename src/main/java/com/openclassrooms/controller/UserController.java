@@ -1,8 +1,6 @@
 package com.openclassrooms.controller;
 
-import java.util.Collections;
 
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -10,59 +8,50 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.openclassrooms.dto.RegisterDTO;
-import com.openclassrooms.jwt.JWTConfigurer;
+import com.openclassrooms.dto.LoginDTO;
+import com.openclassrooms.dto.UserDTO;
 import com.openclassrooms.jwt.SecurityConstants;
 import com.openclassrooms.jwt.TokenProvider;
-import com.openclassrooms.model.Role;
-import com.openclassrooms.model.User;
-import com.openclassrooms.repository.RoleRepository;
-import com.openclassrooms.repository.UserRepository;
+import com.openclassrooms.service.UserService;
 
+import io.swagger.annotations.Api;
 import jakarta.validation.Valid;
+@Api(value= "Authentification")
 
 @RestController
 @RequestMapping("/api")
 public class UserController {
 
 	private final TokenProvider tokenProvider;
+	private final UserService userService;
 
-	private PasswordEncoder passwordEncoder;
-
-	private UserRepository userRepository;
-
-	private RoleRepository roleRepository;
 
 	private final AuthenticationManager authenticationManager;
 
-	public UserController(TokenProvider tokenProvider, AuthenticationManager authenticationManager,
-			UserRepository userRepository, PasswordEncoder passwordEncoder, RoleRepository roleRepository) {
+	public UserController(TokenProvider tokenProvider, AuthenticationManager authenticationManager, UserService userService) {
 		this.tokenProvider = tokenProvider;
+		this.userService = userService;
 		this.authenticationManager = authenticationManager;
-		this.userRepository = userRepository;
-		this.passwordEncoder = passwordEncoder;
-		this.roleRepository = roleRepository;
-
 	}
 	
-	@GetMapping("/test")
-	public ResponseEntity<String> welcome() {
-		return ResponseEntity.ok().build();
+	@GetMapping("/user/{id}")
+	public UserDTO  getUser(@PathVariable int id){
+		return userService.getUser(id);
 	}
 
 	@PostMapping("/authenticate")
-	public ResponseEntity<JWTToken> authorize(@Valid @RequestBody Login login) {
+	public ResponseEntity<JWTToken> authorize(@Valid @RequestBody LoginDTO loginDTO) {
 
 		UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
-				login.getName(), login.getPassword());
+				loginDTO.getEmail(), loginDTO.getPassword());
 
 		Authentication authentication = this.authenticationManager.authenticate(authenticationToken);
 		SecurityContextHolder.getContext().setAuthentication(authentication);
@@ -80,7 +69,7 @@ public class UserController {
 			this.idToken = idToken;
 		}
 
-		@JsonProperty("id_token")
+		@JsonProperty("token")
 		String getIdToken() {
 			return idToken;
 		}

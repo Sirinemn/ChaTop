@@ -1,12 +1,11 @@
 package com.openclassrooms.repository;
 
-
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import com.openclassrooms.model.Rental;
+import com.openclassrooms.model.Message;
 
 @Repository
-public interface RentalRepository extends JpaRepository<Rental,Integer>{
-	Rental findByName(String name);
+public interface MessageRepository extends JpaRepository<Message,Integer>{
+	
 }
