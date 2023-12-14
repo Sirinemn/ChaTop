@@ -25,4 +25,8 @@ public class UserService {
 		return dto;
 		
 	}
+	public UserDTO getUserByName(String name) {
+		User user = userRepository.findByName(name).get();
+		return userMapper.toDto(user);
+	}
 }

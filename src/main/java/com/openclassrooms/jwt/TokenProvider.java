@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -26,6 +27,10 @@ public class TokenProvider {
 	private static final Logger log = LoggerFactory.getLogger(TokenProvider.class);
 
 	private static final String AUTHORITIES_KEY = "Role";
+	//@Value("${app.secret}")
+    private String secret="fahedsirinekynenihsan1988199220182020zarzistunisiesalemsouadsirinesanaseif19631965199219931998";
+	//@Value("${app.tokenValidity}")
+	private long JWT_EXPIRATION=3600000;
 
 	@SuppressWarnings("deprecation")
 	public String createToken(Authentication authentication) {
@@ -33,7 +38,7 @@ public class TokenProvider {
 				.collect(Collectors.joining(","));
 
 		long now = (new Date()).getTime();
-		Date validity = new Date(now + SecurityConstants.JWT_EXPIRATION);
+		Date validity = new Date(now + JWT_EXPIRATION);
 
 		return Jwts.builder()
 				.subject(authentication.getName())
@@ -44,13 +49,13 @@ public class TokenProvider {
 	}
 
 	private Key getSigningKey() {
-		byte[] keyBytes = Decoders.BASE64.decode(SecurityConstants.secret);
+		byte[] keyBytes = Decoders.BASE64.decode(secret);
 		return Keys.hmacShaKeyFor(keyBytes);
 	}
 
 	@SuppressWarnings("deprecation")
 	public Authentication getAuthentication(String token) {
-		Claims claims = Jwts.parser().setSigningKey(SecurityConstants.secret).build().parseClaimsJws(token).getBody();
+		Claims claims = Jwts.parser().setSigningKey(secret).build().parseClaimsJws(token).getBody();
 
 		Collection<? extends GrantedAuthority> authorities = Arrays
 				.stream(claims.get(AUTHORITIES_KEY).toString().split(",")).map(SimpleGrantedAuthority::new)
@@ -64,7 +69,7 @@ public class TokenProvider {
 	@SuppressWarnings("deprecation")
 	public boolean validateToken(String authToken) {
 		try {
-			Jwts.parser().setSigningKey(SecurityConstants.secret).build().parseClaimsJws(authToken);
+			Jwts.parser().setSigningKey(secret).build().parseClaimsJws(authToken);
 			return true;
 		} catch (Exception e) {
 			log.warn("Error");

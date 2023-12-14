@@ -2,6 +2,7 @@ package com.openclassrooms.controller;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -12,6 +13,7 @@ import com.openclassrooms.service.MessageService;
 
 import io.swagger.annotations.Api;
 
+@CrossOrigin(origins = "http://localhost:4200")
 @Api(value= "Ajouter un message")
 @RestController
 @RequestMapping("/api")
@@ -22,7 +24,7 @@ public class MessageController {
 		this.messageService= messageService;	
 	}
 	
-	@PostMapping("/message")
+	@PostMapping("/messages")
 	public ResponseEntity<String> addMessage(@RequestBody MessageDTO messageDto) {
 		 messageService.saveMessage(messageDto);
 		 return new ResponseEntity<>("Added succeesfully", HttpStatus.CREATED);

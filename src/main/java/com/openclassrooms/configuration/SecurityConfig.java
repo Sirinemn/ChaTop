@@ -66,7 +66,7 @@ public class SecurityConfig {
         http.addFilterBefore(new CorsFilter(), UsernamePasswordAuthenticationFilter.class).cors(withDefaults()).csrf((AbstractHttpConfigurer::disable));
         http.exceptionHandling(handling -> handling.authenticationEntryPoint(authEntryPoint));
         http.sessionManagement(management -> management.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
-                http.authorizeHttpRequests().requestMatchers("/api/authenticate","/api/register","/swagger*/**").permitAll()
+                http.authorizeHttpRequests().requestMatchers("/api/auth/login","/api/auth/register","/swagger*/**").permitAll()
                 .anyRequest().authenticated().and().apply(securityConfigurerAdapter());
 
         return http.build();

@@ -2,8 +2,9 @@ package com.openclassrooms.service;
 
 import com.openclassrooms.dto.RegisterDTO;
 import com.openclassrooms.exception.UserAlreadyExistException;
+import com.openclassrooms.model.User;
 
 public interface AccountService {
-	void save(RegisterDTO registerDto) throws UserAlreadyExistException;
+	User save(RegisterDTO registerDto) throws UserAlreadyExistException;
 
 }

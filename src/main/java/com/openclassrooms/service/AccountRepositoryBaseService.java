@@ -26,7 +26,7 @@ public class AccountRepositoryBaseService implements AccountService {
 	}
 
 	@Override
-	public void save(RegisterDTO registerDto) throws UserAlreadyExistException {
+	public User save(RegisterDTO registerDto) throws UserAlreadyExistException {
 		if (userRepository.existsByName(registerDto.getName())) {
 			throw new UserAlreadyExistException(" user already exist "+registerDto.getName());
 		}
@@ -38,7 +38,8 @@ public class AccountRepositoryBaseService implements AccountService {
 
 		roleRepository.findByName("CUSTOMER")
 		.ifPresent(r -> user.setRoles(Collections.singletonList(r)));
-		userRepository.save(user);
+		User saved=userRepository.save(user);
+		return saved;
 		
 	}
 
