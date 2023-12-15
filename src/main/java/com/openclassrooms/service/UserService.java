@@ -26,7 +26,14 @@ public class UserService {
 		
 	}
 	public UserDTO getUserByName(String name) {
-		User user = userRepository.findByName(name).get();
+		User user = userRepository.findByName(name).orElse(null);
 		return userMapper.toDto(user);
+	}
+	public Integer getIdByName(String name) {
+		return userRepository.findIdByName(name).orElse(null);		
+	}
+	public User getUserByname(String name) {  
+		return userRepository.findByName(name).orElse(null);
+		
 	}
 }

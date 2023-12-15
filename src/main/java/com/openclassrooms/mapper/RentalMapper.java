@@ -4,6 +4,7 @@ import org.springframework.stereotype.Component;
 
 import com.openclassrooms.dto.RentalDto;
 import com.openclassrooms.model.Rental;
+import com.openclassrooms.model.RentalOwner;
 
 @Component
 public class RentalMapper {
@@ -33,8 +34,16 @@ public class RentalMapper {
 	    entity.setDescription(dto.getDescription());
 	    entity.setCreatedAt(dto.getCreatedAt());
 	    entity.setUpdatedAt(dto.getUpdatedAt());
-
 	    return entity;
 	  }
+	  public Rental RantalOwnertoEntity(RentalOwner rental) {
+			Rental entity = new Rental();
+		    entity.setName(rental.getName());
+		    entity.setSurface(rental.getSurface());
+		    entity.setPrice(rental.getPrice());
+		    entity.setPicture(rental.getPicture());
+		    entity.setDescription(rental.getDescription());
+		    return entity;
+		  }
 
 }
