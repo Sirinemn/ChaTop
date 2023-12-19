@@ -33,8 +33,7 @@ public class UserController {
 
 	private final TokenProvider tokenProvider;
 	private final UserService userService;
-	//@Value("${app.AUTHORIZATION_HEADER}")
-    private String AUTHORIZATION_HEADER="Authorization";
+    private final String AUTHORIZATION_HEADER="Authorization";
 
 
 	private final AuthenticationManager authenticationManager;
@@ -46,13 +45,15 @@ public class UserController {
 	}
 	@GetMapping("/me")
     @ResponseBody
-    public UserDTO currentUserName(Authentication authentication) {
+    public ResponseEntity<UserDTO> currentUserName(Authentication authentication) {
 		String name=authentication.getName();
-		return userService.getUserByName(name);
+		UserDTO user= userService.getUserByName(name);
+		return ResponseEntity.ok(user);
     }
 	@GetMapping("/user/{id}")
-	public UserDTO  getUser(@PathVariable int id){
-		return userService.getUser(id);
+	public ResponseEntity<UserDTO>  getUser(@PathVariable int id){
+		UserDTO user=  userService.getUser(id);
+		return ResponseEntity.ok(user);
 	}
 
 	@PostMapping("/login")
