@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.openclassrooms.dto.MessageDTO;
+import com.openclassrooms.model.MessageResponse;
 import com.openclassrooms.service.MessageService;
 
 import io.swagger.annotations.Api;
@@ -25,9 +26,10 @@ public class MessageController {
 	}
 	
 	@PostMapping("/messages")
-	public ResponseEntity<String> addMessage(@RequestBody MessageDTO messageDto) {
+	public ResponseEntity<MessageResponse> addMessage(@RequestBody MessageDTO messageDto) {
 		 messageService.saveMessage(messageDto);
-		 return new ResponseEntity<>("Added succeesfully", HttpStatus.CREATED);
+		 MessageResponse messageResponse = new MessageResponse("Message sent!");
+		 return new ResponseEntity<>(messageResponse, HttpStatus.CREATED);
 	}
 
 }

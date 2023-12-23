@@ -24,10 +24,10 @@ public class MessageService{
 	
 	public void saveMessage(MessageDTO messageDto) {
 		Message message = new Message();
-		String userName = messageDto.getUserName();
-		String rentalName = messageDto.getRentalName();
-		User user = userRepository.findByName(userName).get();
-		Rental rental = rentalRepository.findByName(rentalName);
+		Integer userId = messageDto.getUserId();
+		Integer rentalId = messageDto.getRentalId();
+		User user = userRepository.findById(userId).orElse(null);
+		Rental rental = rentalRepository.findById(rentalId).orElse(null);
 		message.setRental(rental);
 		message.setUser(user);
 		message.setMessage(messageDto.getMessage());
