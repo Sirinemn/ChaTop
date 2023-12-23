@@ -1,6 +1,5 @@
 package com.openclassrooms.controller;
 
-
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -9,58 +8,39 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.openclassrooms.dto.LoginDTO;
-import com.openclassrooms.dto.UserDTO;
+import com.openclassrooms.dto.RegisterDTO;
+import com.openclassrooms.exception.UserAlreadyExistException;
 import com.openclassrooms.jwt.TokenProvider;
-import com.openclassrooms.service.UserService;
+import com.openclassrooms.service.AccountService;
 
-import io.swagger.annotations.Api;
-import jakarta.validation.Valid;
 @CrossOrigin(origins = "http://localhost:4200")
-@Api(value= "Authentification")
 @RestController
 @RequestMapping("/api/auth")
-public class UserController {
-
-	private final TokenProvider tokenProvider;
-	private final UserService userService;
+public class AccountController {
+	
+	private AccountService accountService;
+	private TokenProvider tokenProvider;
+	private AuthenticationManager authenticationManager;
     private final String AUTHORIZATION_HEADER="Authorization";
-
-
-	private final AuthenticationManager authenticationManager;
-
-	public UserController(TokenProvider tokenProvider, AuthenticationManager authenticationManager, UserService userService) {
+	
+	public AccountController(AccountService accountService,TokenProvider tokenProvider, AuthenticationManager authenticationManager) {
+		this.accountService = accountService;
 		this.tokenProvider = tokenProvider;
-		this.userService = userService;
 		this.authenticationManager = authenticationManager;
 	}
-	@GetMapping("/me")
-    @ResponseBody
-    public ResponseEntity<UserDTO> currentUserName(Authentication authentication) {
-		String name=authentication.getName();
-		UserDTO user= userService.getUserByName(name);
-		return ResponseEntity.ok(user);
-    }
-	@GetMapping("/user/{id}")
-	public ResponseEntity<UserDTO>  getUser(@PathVariable int id){
-		UserDTO user=  userService.getUser(id);
-		return ResponseEntity.ok(user);
-	}
-
-	@PostMapping("/login")
-	public ResponseEntity<JWTToken> authorize(@Valid @RequestBody LoginDTO loginDTO) {
-
+	
+	@PostMapping("/register")
+	public ResponseEntity<JWTToken> register(@RequestBody RegisterDTO registerDto) throws UserAlreadyExistException {
+		accountService.save(registerDto);
+		//if(register==null) return new ResponseEntity<>("Customer not created",HttpStatus.BAD_REQUEST);	
 		UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
-				loginDTO.getEmail(), loginDTO.getPassword());
+				registerDto.getEmail(), registerDto.getPassword());
 
 		Authentication authentication = this.authenticationManager.authenticate(authenticationToken);
 		SecurityContextHolder.getContext().setAuthentication(authentication);
@@ -69,7 +49,6 @@ public class UserController {
 		httpHeaders.add(AUTHORIZATION_HEADER, "Bearer " + jwt);
 		return new ResponseEntity<>(new JWTToken(jwt), httpHeaders, HttpStatus.OK);
 	}
-
 	static class JWTToken {
 
 		private String idToken;
@@ -87,7 +66,4 @@ public class UserController {
 			this.idToken = idToken;
 		}
 	}
-
-
-
 }

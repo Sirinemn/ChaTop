@@ -6,7 +6,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.GenericFilterBean;
-
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRequest;
@@ -15,11 +14,12 @@ import jakarta.servlet.http.HttpServletRequest;
 
 public class JwtFilter extends GenericFilterBean {
 
-	private TokenProvider tokenProvider;
-
+	private final TokenProvider tokenProvider;
+	
 	public JwtFilter(TokenProvider tokenProvider) {
-	        this.tokenProvider = tokenProvider;
-	    }
+		this.tokenProvider = tokenProvider;
+
+	}
 
 	@Override
 	public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain)
@@ -34,7 +34,7 @@ public class JwtFilter extends GenericFilterBean {
 	}
 
 	private String resolveToken(HttpServletRequest request) {
-		String bearerToken = request.getHeader(JWTConfigurer.AUTHORIZATION_HEADER);
+		String bearerToken = request.getHeader("Authorization");
 		if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")) {
 			return bearerToken.substring(7, bearerToken.length());
 		}

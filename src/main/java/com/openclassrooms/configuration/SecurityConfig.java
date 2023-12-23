@@ -9,6 +9,7 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -17,6 +18,9 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import com.openclassrooms.jwt.JWTConfigurer;
+
+import static org.springframework.security.config.Customizer.withDefaults;
+import com.openclassrooms.jwt.JwtAuthEntryPoint;
 import com.openclassrooms.jwt.TokenProvider;
 
 @Configuration
@@ -25,13 +29,14 @@ import com.openclassrooms.jwt.TokenProvider;
 public class SecurityConfig {
 
     private final UserDetailsService userDetailsService;
-
+    private JwtAuthEntryPoint authEntryPoint;
     private final TokenProvider tokenProvider;
 
 
-    public SecurityConfig(UserDetailsService userDetailsService,TokenProvider tokenProvider) {
+    public SecurityConfig(UserDetailsService userDetailsService,TokenProvider tokenProvider,JwtAuthEntryPoint authEntryPoint) {
         this.userDetailsService = userDetailsService;
         this.tokenProvider = tokenProvider;
+        this.authEntryPoint = authEntryPoint;
     }
 
     @Bean
@@ -55,14 +60,14 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
     
-    @Bean
+    @SuppressWarnings("removal")
+	@Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http.addFilterBefore(new CorsFilter(), UsernamePasswordAuthenticationFilter.class).cors().and().csrf().disable();
-                http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
-                http.authorizeHttpRequests().requestMatchers("/api/authenticate/**").permitAll()
+        http.addFilterBefore(new CorsFilter(), UsernamePasswordAuthenticationFilter.class).cors(withDefaults()).csrf((AbstractHttpConfigurer::disable));
+        http.exceptionHandling(handling -> handling.authenticationEntryPoint(authEntryPoint));
+        http.sessionManagement(management -> management.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+                http.authorizeHttpRequests().requestMatchers("/api/auth/login","/api/auth/register","/swagger*/**","/v3/api-docs/**").permitAll()
                 .anyRequest().authenticated().and().apply(securityConfigurerAdapter());
-            
-
 
         return http.build();
     }
