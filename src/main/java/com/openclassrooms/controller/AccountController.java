@@ -19,26 +19,36 @@ import com.openclassrooms.exception.UserAlreadyExistException;
 import com.openclassrooms.jwt.TokenProvider;
 import com.openclassrooms.service.AccountService;
 
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.v3.oas.annotations.Hidden;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 @CrossOrigin(origins = "http://localhost:4200")
 @RestController
 @RequestMapping("/api/auth")
+@Tag(name="Register")
 public class AccountController {
-	
+
 	private AccountService accountService;
 	private TokenProvider tokenProvider;
 	private AuthenticationManager authenticationManager;
-    private final String AUTHORIZATION_HEADER="Authorization";
-	
-	public AccountController(AccountService accountService,TokenProvider tokenProvider, AuthenticationManager authenticationManager) {
+	private final String AUTHORIZATION_HEADER = "Authorization";
+
+	public AccountController(AccountService accountService, TokenProvider tokenProvider,
+			AuthenticationManager authenticationManager) {
 		this.accountService = accountService;
 		this.tokenProvider = tokenProvider;
 		this.authenticationManager = authenticationManager;
 	}
-	
+
+	@ApiOperation(value = "Create user", notes = "This method creates a new user and returns a token")
 	@PostMapping("/register")
-	public ResponseEntity<JWTToken> register(@RequestBody RegisterDTO registerDto) throws UserAlreadyExistException {
+	public ResponseEntity<JWTToken> register(
+			@ApiParam(name = "name", type = "String", value = "First Name of the user", required = true) 
+			@RequestBody RegisterDTO registerDto)
+			throws UserAlreadyExistException {
 		accountService.save(registerDto);
-		//if(register==null) return new ResponseEntity<>("Customer not created",HttpStatus.BAD_REQUEST);	
 		UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
 				registerDto.getEmail(), registerDto.getPassword());
 
@@ -49,6 +59,7 @@ public class AccountController {
 		httpHeaders.add(AUTHORIZATION_HEADER, "Bearer " + jwt);
 		return new ResponseEntity<>(new JWTToken(jwt), httpHeaders, HttpStatus.OK);
 	}
+	@Hidden
 	static class JWTToken {
 
 		private String idToken;
