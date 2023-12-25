@@ -5,7 +5,6 @@ import org.springframework.stereotype.Component;
 import com.openclassrooms.dto.RentalDto;
 import com.openclassrooms.model.Rental;
 import com.openclassrooms.model.RentalOwner;
-import com.openclassrooms.model.UpdateRental;
 
 @Component
 public class RentalMapper {
@@ -46,13 +45,5 @@ public class RentalMapper {
 		    entity.setDescription(rental.getDescription());
 		    return entity;
 		  }
-		public UpdateRental toUpdate(Rental entity) {
-			UpdateRental update = new UpdateRental();
-			update.setName(entity.getName());
-			update.setSurface(entity.getSurface());
-			update.setPrice(entity.getPrice());
-			update.setDescription(entity.getDescription());
-		    return update;
-		  }	  
 	  
 }

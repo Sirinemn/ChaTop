@@ -12,24 +12,30 @@ import com.openclassrooms.dto.MessageDTO;
 import com.openclassrooms.model.MessageResponse;
 import com.openclassrooms.service.MessageService;
 
-import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 @CrossOrigin(origins = "http://localhost:4200")
-@Api(value= "Ajouter un message")
 @RestController
 @RequestMapping("/api")
+@Tag(name="Message")
 public class MessageController {
-	
+
 	private MessageService messageService;
+
 	public MessageController(MessageService messageService) {
-		this.messageService= messageService;	
+		this.messageService = messageService;
 	}
-	
+
+	@ApiOperation(value = "Send a message", notes = "This method allows user to send a message to the owner")
 	@PostMapping("/messages")
-	public ResponseEntity<MessageResponse> addMessage(@RequestBody MessageDTO messageDto) {
-		 messageService.saveMessage(messageDto);
-		 MessageResponse messageResponse = new MessageResponse("Message sent!");
-		 return new ResponseEntity<>(messageResponse, HttpStatus.CREATED);
+	public ResponseEntity<MessageResponse> addMessage(
+			@ApiParam(name = "messsage", value = "message of the user", type = "String", required = true) 
+			@RequestBody MessageDTO messageDto) {
+		messageService.saveMessage(messageDto);
+		MessageResponse messageResponse = new MessageResponse("Message sent!");
+		return new ResponseEntity<>(messageResponse, HttpStatus.CREATED);
 	}
 
 }
