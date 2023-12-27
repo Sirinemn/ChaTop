@@ -1,6 +1,5 @@
 package com.openclassrooms.configuration;
 
-
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -28,52 +27,53 @@ import com.openclassrooms.jwt.TokenProvider;
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class SecurityConfig {
 
-    private final UserDetailsService userDetailsService;
-    private JwtAuthEntryPoint authEntryPoint;
-    private final TokenProvider tokenProvider;
+	private final UserDetailsService userDetailsService;
+	private JwtAuthEntryPoint authEntryPoint;
+	private final TokenProvider tokenProvider;
 
+	public SecurityConfig(UserDetailsService userDetailsService, TokenProvider tokenProvider,
+			JwtAuthEntryPoint authEntryPoint) {
+		this.userDetailsService = userDetailsService;
+		this.tokenProvider = tokenProvider;
+		this.authEntryPoint = authEntryPoint;
+	}
 
-    public SecurityConfig(UserDetailsService userDetailsService,TokenProvider tokenProvider,JwtAuthEntryPoint authEntryPoint) {
-        this.userDetailsService = userDetailsService;
-        this.tokenProvider = tokenProvider;
-        this.authEntryPoint = authEntryPoint;
-    }
-
-    @Bean
-    public DaoAuthenticationProvider authenticationProvider() {
-        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
-         
-        authProvider.setUserDetailsService(userDetailsService);
-        authProvider.setPasswordEncoder(passwordEncoder());
-     
-        return authProvider;
-    }
-       
-    @Bean
-    public AuthenticationManager authenticationManager(
-            AuthenticationConfiguration authConfig) throws Exception {
-        return authConfig.getAuthenticationManager();
-    }
-
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
-    
-    @SuppressWarnings("removal")
 	@Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http.addFilterBefore(new CorsFilter(), UsernamePasswordAuthenticationFilter.class).cors(withDefaults()).csrf((AbstractHttpConfigurer::disable));
-        http.exceptionHandling(handling -> handling.authenticationEntryPoint(authEntryPoint));
-        http.sessionManagement(management -> management.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
-                http.authorizeHttpRequests().requestMatchers("/api/auth/login","/api/auth/register","/swagger*/**","/v3/api-docs/**").permitAll()
-                .anyRequest().authenticated().and().apply(securityConfigurerAdapter());
+	public DaoAuthenticationProvider authenticationProvider() {
+		DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
 
-        return http.build();
-    }
+		authProvider.setUserDetailsService(userDetailsService);
+		authProvider.setPasswordEncoder(passwordEncoder());
 
-    private JWTConfigurer securityConfigurerAdapter() {
-        return new JWTConfigurer(tokenProvider);
-    }
+		return authProvider;
+	}
+
+	@Bean
+	public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {
+		return authConfig.getAuthenticationManager();
+	}
+
+	@Bean
+	public PasswordEncoder passwordEncoder() {
+		return new BCryptPasswordEncoder();
+	}
+
+	@SuppressWarnings("removal")
+	@Bean
+	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+		http.addFilterBefore(new CorsFilter(), UsernamePasswordAuthenticationFilter.class).cors(withDefaults())
+				.csrf((AbstractHttpConfigurer::disable));
+		http.exceptionHandling(handling -> handling.authenticationEntryPoint(authEntryPoint));
+		http.sessionManagement(management -> management.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+		http.authorizeHttpRequests()
+				.requestMatchers("/api/auth/login", "/api/auth/register", "/swagger*/**", "/v3/api-docs/**").permitAll()
+				.anyRequest().authenticated().and().apply(securityConfigurerAdapter());
+
+		return http.build();
+	}
+
+	private JWTConfigurer securityConfigurerAdapter() {
+		return new JWTConfigurer(tokenProvider);
+	}
 
 }

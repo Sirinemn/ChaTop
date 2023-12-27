@@ -26,9 +26,9 @@ import com.openclassrooms.model.User;
 import com.openclassrooms.service.RentalService;
 import com.openclassrooms.service.UserService;
 
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
 import io.swagger.v3.oas.annotations.Hidden;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
@@ -38,6 +38,7 @@ import jakarta.validation.constraints.Size;
 @RestController
 @RequestMapping("/api")
 @Tag(name="Rental")
+@SecurityRequirement(name="BearerAuth")
 public class RentalController {
 
 	private UserService userService;
@@ -48,7 +49,7 @@ public class RentalController {
 		this.userService = userService;
 	}
 
-	@ApiOperation(value = "Return all rentals", notes = "This method returns all the rentals")
+	@Operation(summary = "Return all rentals", description = "This method returns all the rentals")
 	@GetMapping("/rentals")
 	public ResponseEntity<RentalsResponse> getRentals() {
 		List<RentalDto> rentals = rentalService.getRentals();
@@ -56,19 +57,17 @@ public class RentalController {
 		return ResponseEntity.ok(rentalResponse);
 	}
 
-	@ApiOperation(value = "Find rental", notes = "This method finds a rental by id")
+	@Operation(summary = "Find rental", description = "This method finds a rental by id")
 	@GetMapping("/rentals/{id}")
-	public ResponseEntity<RentalDto> getRental(
-			@ApiParam(value = "Rental id", type = "Integer", required = true) @PathVariable int id) {
+	public ResponseEntity<RentalDto> getRental(@PathVariable int id) {
 		RentalDto rental = rentalService.getRental(id);
 		return ResponseEntity.ok(rental);
 	}
 
-	@ApiOperation(value = "Create rental", notes = "This method creates a new rental")
+	@Operation(summary = "Create rental", description = "This method creates a new rental")
 	@PostMapping(value = "/rentals/add", consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
 	public ResponseEntity<RentalResponse> addRental(
 			@RequestPart("picture") MultipartFile file,
-			@ApiParam(name = "name", type = "String", value = "Name of the rental", required = true) 
 			@RequestParam("name") @NotBlank @Size(max = 63) String name, @RequestParam("surface") @Min(0) float surface,
 			@RequestParam("price") @Min(0) float price,
 			@RequestParam("description") @Size(max = 2000) String description, Authentication authentication) {
@@ -92,7 +91,7 @@ public class RentalController {
 		return ResponseEntity.noContent().build();
 	}
 
-	@ApiOperation(value = "Update rental", notes = "This method updates a rental")
+	@Operation(summary = "Update rental", description = "This method updates a rental")
 	@PutMapping("/rentals/update/{id}")
 	public ResponseEntity<RentalResponse> updateRental(@RequestParam("name") @NotBlank @Size(max = 63) String name,
 			@RequestParam("surface") @Min(0) float surface, @RequestParam("price") @Min(0) float price,

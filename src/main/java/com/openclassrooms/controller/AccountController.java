@@ -19,9 +19,8 @@ import com.openclassrooms.exception.UserAlreadyExistException;
 import com.openclassrooms.jwt.TokenProvider;
 import com.openclassrooms.service.AccountService;
 
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
 import io.swagger.v3.oas.annotations.Hidden;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 @CrossOrigin(origins = "http://localhost:4200")
@@ -42,10 +41,9 @@ public class AccountController {
 		this.authenticationManager = authenticationManager;
 	}
 
-	@ApiOperation(value = "Create user", notes = "This method creates a new user and returns a token")
+	@Operation(summary = "Create user", description = "This method creates a new user and returns a token")
 	@PostMapping("/register")
 	public ResponseEntity<JWTToken> register(
-			@ApiParam(name = "name", type = "String", value = "First Name of the user", required = true) 
 			@RequestBody RegisterDTO registerDto)
 			throws UserAlreadyExistException {
 		accountService.save(registerDto);

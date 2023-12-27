@@ -22,9 +22,9 @@ import com.openclassrooms.dto.UserDTO;
 import com.openclassrooms.jwt.TokenProvider;
 import com.openclassrooms.service.UserService;
 
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
 import io.swagger.v3.oas.annotations.Hidden;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
@@ -47,29 +47,27 @@ public class UserController {
 		this.authenticationManager = authenticationManager;
 	}
 
-	@ApiOperation(value = "Return logged user", notes = "This method returns the logged user")
+	@Operation(summary = "Return logged user", description = "This method returns the logged user")
 	@GetMapping("/me")
 	@ResponseBody
+	@SecurityRequirement(name="BearerAuth")
 	public ResponseEntity<UserDTO> currentUserName(Authentication authentication) {
 		String name = authentication.getName();
 		UserDTO user = userService.getUserByName(name);
 		return ResponseEntity.ok(user);
 	}
 
-	@ApiOperation(value = "Find user", notes = "This method finds a user by id")
+	@Operation(summary = "Find user", description = "This method finds a user by id")
 	@GetMapping("/user/{id}")
-	public ResponseEntity<UserDTO> getUser(
-			@ApiParam(name = "id", type = "Integer", value = "Id of the user", required = true) 
-			@PathVariable int id) {
+	@SecurityRequirement(name="BearerAuth")
+	public ResponseEntity<UserDTO> getUser(@PathVariable int id) {
 		UserDTO user = userService.getUser(id);
 		return ResponseEntity.ok(user);
 	}
 
-	@ApiOperation(value = "Return token", notes = "This method returns the token after user is logged")
+	@Operation(summary = "Return token", description = "This method returns the token after user is logged")
 	@PostMapping("/login")
-	public ResponseEntity<JWTToken> authorize(
-			@ApiParam(name = "email", type = "String", value = "First Name of the user", required = true) 
-			@Valid @RequestBody LoginDTO loginDTO) {
+	public ResponseEntity<JWTToken> authorize(@Valid @RequestBody LoginDTO loginDTO) {
 
 		UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
 				loginDTO.getEmail(), loginDTO.getPassword());
