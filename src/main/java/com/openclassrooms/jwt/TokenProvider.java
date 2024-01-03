@@ -1,10 +1,11 @@
 package com.openclassrooms.jwt;
 
-import java.security.Key;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.stream.Collectors;
+
+import javax.crypto.SecretKey;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,7 +34,6 @@ public class TokenProvider {
 	@Value("${app.tokenValidity}")
 	Long TOKENVALIDITY;
 
-	@SuppressWarnings("deprecation")
 	public String createToken(Authentication authentication) {
 		String authorities = authentication.getAuthorities().stream().map(GrantedAuthority::getAuthority)
 				.collect(Collectors.joining(","));
@@ -44,19 +44,17 @@ public class TokenProvider {
 		return Jwts.builder()
 				.subject(authentication.getName())
 				.claim("Role", authorities)
-				.signWith(getSigningKey())
-				.setExpiration(validity).compact();
-
+				.expiration(validity) 
+				.signWith(getSigningKey()).compact();
 	}
 
-	private Key getSigningKey() {
+	private SecretKey getSigningKey() {
 		byte[] keyBytes = Decoders.BASE64.decode(SECRET);
 		return Keys.hmacShaKeyFor(keyBytes);
 	}
 
-	@SuppressWarnings("deprecation")
 	public Authentication getAuthentication(String token) {
-		Claims claims = Jwts.parser().setSigningKey(SECRET).build().parseClaimsJws(token).getBody();
+		Claims claims = Jwts.parser().verifyWith(getSigningKey()).build().parseSignedClaims(token).getPayload();
 
 		Collection<? extends GrantedAuthority> authorities = Arrays
 				.stream(claims.get(AUTHORITIES_KEY).toString().split(",")).map(SimpleGrantedAuthority::new)
@@ -67,10 +65,9 @@ public class TokenProvider {
 		return new UsernamePasswordAuthenticationToken(principal, token, authorities);
 	}
 
-	@SuppressWarnings("deprecation")
 	public boolean validateToken(String authToken) {
 		try {
-			Jwts.parser().setSigningKey(SECRET).build().parseClaimsJws(authToken);
+			Jwts.parser().verifyWith(getSigningKey()).build().parseSignedClaims(authToken);
 			return true;
 		} catch (Exception e) {
 			log.warn("Error");

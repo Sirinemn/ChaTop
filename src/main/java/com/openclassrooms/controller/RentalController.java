@@ -20,13 +20,13 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.openclassrooms.dto.RentalDto;
+import com.openclassrooms.model.DeleteResponse;
 import com.openclassrooms.model.RentalResponse;
 import com.openclassrooms.model.RentalsResponse;
 import com.openclassrooms.model.User;
 import com.openclassrooms.service.RentalService;
 import com.openclassrooms.service.UserService;
 
-import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -84,11 +84,12 @@ public class RentalController {
 		}
 	}
 
-	@Hidden
-	@DeleteMapping("rentals/delete")
-	public ResponseEntity<Void> deleteRental(@PathVariable int id) {
+	
+	@DeleteMapping("rentals/delete/{id}")
+	public ResponseEntity<DeleteResponse> deleteRental(@PathVariable int id) {
 		rentalService.deleteRental(id);
-		return ResponseEntity.noContent().build();
+		DeleteResponse deleteResponse = new DeleteResponse("Rental deleted !");
+		return new ResponseEntity<>(deleteResponse,HttpStatus.NO_CONTENT);
 	}
 
 	@Operation(summary = "Update rental", description = "This method updates a rental")
