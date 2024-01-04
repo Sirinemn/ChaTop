@@ -18,7 +18,8 @@ Project Chatop is an open source platform that allow potential tenants to contac
 - Run mvn spring-boot:run to lunch the project.
 - Swagger URL : http://localhost:8080/swagger-ui/index.html/
 - SQL script for creating the schema is available ressources/sql/script.sql
-- Please change the environment variable PATH to your local folder that contains the location pictures. 
+- Please change the environment variable IMAGE_PATH to your local folder where do you want to save your picture,
+As well as the DATABASS_URL and SQLPASSWORD to match your own Mysql configuration.
 
 ### Requirements
 
