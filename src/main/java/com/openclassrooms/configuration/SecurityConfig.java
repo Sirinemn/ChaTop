@@ -60,7 +60,7 @@ public class SecurityConfig {
 		http.exceptionHandling(handling -> handling.authenticationEntryPoint(authEntryPoint));
 		http.sessionManagement(management -> management.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 		http.securityMatcher("/api/**").authorizeHttpRequests(rmr -> rmr
-				.requestMatchers("/api/auth/login", "/api/auth/register", "/swagger*/**", "/v3/api-docs/**").permitAll()
+				.requestMatchers("/api/auth/login", "/api/auth/register", "/swagger*/**", "/v3/api-docs/**","/api/rentals/image/**").permitAll()
 	            .requestMatchers("/api/**").authenticated()				
 				);
 		http.authenticationProvider(authenticationProvider())

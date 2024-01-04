@@ -1,8 +1,11 @@
 package com.openclassrooms.controller;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -15,9 +18,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.openclassrooms.dto.RentalDto;
 import com.openclassrooms.model.DeleteResponse;
@@ -43,8 +46,10 @@ public class RentalController {
 
 	private UserService userService;
 	private RentalService rentalService;
-
-	public RentalController(RentalService rentalService, UserService userService) {
+	private final String imagePath;
+	
+	public RentalController(RentalService rentalService, UserService userService, @Value("${image.path}")String imagePath) {
+		this.imagePath = imagePath;
 		this.rentalService = rentalService;
 		this.userService = userService;
 	}
@@ -52,7 +57,8 @@ public class RentalController {
 	@Operation(summary = "Return all rentals", description = "This method returns all the rentals")
 	@GetMapping("/rentals")
 	public ResponseEntity<RentalsResponse> getRentals() {
-		List<RentalDto> rentals = rentalService.getRentals();
+		String url = ServletUriComponentsBuilder.fromCurrentRequest().toUriString();
+		List<RentalDto> rentals = rentalService.getRentals(url);
 		RentalsResponse rentalResponse = new RentalsResponse(rentals);
 		return ResponseEntity.ok(rentalResponse);
 	}
@@ -60,14 +66,15 @@ public class RentalController {
 	@Operation(summary = "Find rental", description = "This method finds a rental by id")
 	@GetMapping("/rentals/{id}")
 	public ResponseEntity<RentalDto> getRental(@PathVariable int id) {
-		RentalDto rental = rentalService.getRental(id);
+		String url = ServletUriComponentsBuilder.fromCurrentRequest().toUriString();
+		RentalDto rental = rentalService.getRental(id,url.substring(0, url.length() - 3));
 		return ResponseEntity.ok(rental);
 	}
 
 	@Operation(summary = "Create rental", description = "This method creates a new rental")
 	@PostMapping(value = "/rentals/add", consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
 	public ResponseEntity<RentalResponse> addRental(
-			@RequestPart("picture") MultipartFile file,
+			@RequestParam("picture") MultipartFile file,
 			@RequestParam("name") @NotBlank @Size(max = 63) String name, @RequestParam("surface") @Min(0) float surface,
 			@RequestParam("price") @Min(0) float price,
 			@RequestParam("description") @Size(max = 2000) String description, Authentication authentication) {
@@ -82,16 +89,26 @@ public class RentalController {
 			rentalResponse.message = "Something went wrong !";
 			return new ResponseEntity<>(rentalResponse, HttpStatus.BAD_REQUEST);
 		}
+	}	
+	@GetMapping(value="/rentals/image",
+			produces= {MediaType.IMAGE_JPEG_VALUE,
+					MediaType.IMAGE_PNG_VALUE,
+					MediaType.IMAGE_GIF_VALUE})
+	public ResponseEntity<byte[]> getImage(@RequestParam("picture") String image){
+		try {
+			String filePath = imagePath+image;
+			 byte[] bytes = Files.readAllBytes(Paths.get(filePath));
+			return new ResponseEntity<>(bytes, HttpStatus.OK);
+		} catch (IOException e) {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();			
+		}
 	}
-
-	
 	@DeleteMapping("rentals/delete/{id}")
 	public ResponseEntity<DeleteResponse> deleteRental(@PathVariable int id) {
 		rentalService.deleteRental(id);
 		DeleteResponse deleteResponse = new DeleteResponse("Rental deleted !");
 		return new ResponseEntity<>(deleteResponse,HttpStatus.NO_CONTENT);
 	}
-
 	@Operation(summary = "Update rental", description = "This method updates a rental")
 	@PutMapping("/rentals/update/{id}")
 	public ResponseEntity<RentalResponse> updateRental(@RequestParam("name") @NotBlank @Size(max = 63) String name,
@@ -101,6 +118,5 @@ public class RentalController {
 		rentalService.updateRental(name, surface, price, description, id);
 		RentalResponse rentalResponse = new RentalResponse("Rental updated!");
 		return new ResponseEntity<>(rentalResponse, HttpStatus.OK);
-
 	}
 }
